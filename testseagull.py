@@ -47,18 +47,48 @@ def run_clustering(img, nbclust=3):
             clusteredimg[i,j] = centroids[clusterlabels[i,j],:] 
     return clusteredimg, centroids
 
+
+def makepadd(img, kernsize=5):
+    imgsize = img.shape
+    nbsup = kernsize // 2
+    ressize = (imgsize[0] + 2*nbsup, imgsize[1] + 2*nbsup)
+    res = np.zeros((ressize))
+    res[nbsup:-nbsup, nbsup:-nbsup] = img
+    for i in range(nbsup):
+        res[i,nbsup:-nbsup] = img[0,:]
+        res[-i,nbsup:-nbsup] = img[-1,:]
+        
+        res[nbsup:-nbsup, i] = img[:,0]
+        res[nbsup:-nbsup, -i] = img[:,-1]
+    return res
+
+def run_morphograd(img, kernsize=5):
+    imgsize = img.shape
+    assert kernsize%2 == 1
+    img = makepadd(img, kernsize)
+    
+    res = np.zeros((imgsize))
+    
+    for i in range(imgsize[0]):
+        for j in range(imgsize[1]):
+            window = img[i:i+kernsize, j:j+kernsize]
+            res[i,j] = np.max(window) - np.min(window)
+    return res
+    
+
 if __name__=='__main__':
     
-    seagull = cv2.imread("kmeansseagull_4.jpg")
+    seagull = cv2.imread("seagull.jpg", cv2.IMREAD_GRAYSCALE)
     # seagull[:,:,2], seagull[:,:,1] = seagull[:,:,1], seagull[:,:,2]
     
-    # seagull = rescale_frame(seagull, scale=0.5)
-    seagull = invert_rb(seagull)
+    seagull = rescale_frame(seagull, scale=0.5)
+    # seagull = invert_rb(seagull)
     lowdim = seagull.shape
+    seagull = run_morphograd(seagull)
     # seagull = np.reshape(seagull, newshape=(lowdim[0]*lowdim[1],-1))
     
     # clusteredseagull, centroids = run_clustering(seagull, nbclust=3)
-    # plt.imshow(clusteredseagull)
+    plt.imshow(seagull)
     # print(centroids)
-    cv2.imwrite("kmeansseagull_4bis.jpg", seagull)
+    cv2.imwrite("morphoseagull.jpg", seagull)
     print(seagull.shape)
