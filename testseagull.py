@@ -41,7 +41,7 @@ def invert_rb(img):
 seagull = rescale_frame(seagull)
 seagull = invert_rb(seagull)
 seagull = np.reshape(seagull, newshape=(lowdim[0]*lowdim[1],-1))
-kmeans = KMeans(5).fit(seagull)
+kmeans = KMeans(12).fit(seagull)
 clusteredseagull = np.zeros((lowdim[0], lowdim[1], 3))
 clusterlabels = np.reshape(kmeans.labels_, newshape=(lowdim[0], lowdim[1]))
 
@@ -53,5 +53,5 @@ for i in range(lowdim[0]):
 
 plt.imshow(clusteredseagull)
 print(centroids)
-cv2.imwrite("kmeansseagull_2.jpg", clusteredseagull)
+cv2.imwrite("kmeansseagull_4.jpg", clusteredseagull)
 print(seagull.shape)
